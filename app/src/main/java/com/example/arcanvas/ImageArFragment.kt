@@ -1,14 +1,20 @@
 package com.example.arcanvas
 
+
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.text.Layout
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.annotation.RequiresApi
+import androidx.core.graphics.get
+import androidx.core.graphics.scale
 import com.google.ar.core.*
 import com.google.ar.sceneform.AnchorNode
 import com.google.ar.sceneform.FrameTime
@@ -22,16 +28,18 @@ import java.io.IOException
 class ImageArFragment:ArFragment() {
     // to keep tracking which trackable that we have created AnchorNode with it or not.
     private val trackableMap = mutableMapOf<String, AnchorNode>()
-    private val artWidth = 0.0
-
+    private var artRotation:Float = 0f
+    private var imageUri:Uri? = null
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = super.onCreateView(inflater, container, savedInstanceState)
+        imageUri = activity!!.intent.extras["ImageUri"] as Uri
+        artRotation = activity!!.intent.extras["Rotation"] as Float
+        Log.d("onCreateArFragment", imageUri.toString())
 
         // Turn off the plane discovery since we're only looking for ArImages
         planeDiscoveryController.hide()
         planeDiscoveryController.setInstructionView(null)
         arSceneView.planeRenderer.isEnabled = false
-
 
         // add frame update listener
         arSceneView.scene.addOnUpdateListener(::onUpdateFrame)
@@ -104,11 +112,9 @@ class ImageArFragment:ArFragment() {
     }
     private fun createAnchorNode(image: AugmentedImage) {
         val an = createArt(image)
-
         if (an != null){
             // add the AnchorNode to the scene
             arSceneView.scene.addChild(an)
-
             // keep the node
             trackableMap[image.name] = an
         }
@@ -128,27 +134,40 @@ class ImageArFragment:ArFragment() {
         var arHeight = image.extentZ // extentZ is estimated height
         Log.d("ImageScale", arWidth.toString())
 
+
+
         var scaledWidth = arWidth/1f
         var scaledHeight = arHeight/0.66f
 
-        // add view A
+        // add view
         val viewA = Node()
         viewA.setParent(anchorNode)
         // scale to the right size
         viewA.localRotation = Quaternion(Vector3(1f, 0f, 0f), -90f)
-        viewA.localScale = Vector3(scaledWidth, scaledHeight, scaledWidth)
+        viewA.localScale = Vector3(5*scaledWidth, 5*scaledHeight, 5*scaledWidth)
 
         // load the model
-        ViewRenderable.builder().setView(this.context, R.layout.image)
+
+
+        ViewRenderable.builder().setView(this.context, setImageView(imageUri))
             .setVerticalAlignment(ViewRenderable.VerticalAlignment.CENTER)
             .setHorizontalAlignment(ViewRenderable.HorizontalAlignment.CENTER)
             .build()
             .thenAccept { renderable ->
                 viewA.renderable = renderable
         }
-
-
-
         return anchorNode
+    }
+
+    private fun setImageView(artImage: Uri?):View{
+        val layout = layoutInflater.inflate(R.layout.image, null)
+        layout.width
+        val image = layout.findViewById<ImageView>(R.id.image_card)
+        val imageStream = activity?.contentResolver?.openInputStream(artImage)
+        val selectedImage = BitmapFactory.decodeStream(imageStream)
+        image?.rotation = artRotation
+        image?.scaleType = ImageView.ScaleType.CENTER_CROP
+        image?.setImageBitmap(selectedImage)
+        return layout
     }
 }

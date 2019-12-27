@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ARCanvas</string>
+    <string name="btn_select_image">Select Image</string>
 </resources>

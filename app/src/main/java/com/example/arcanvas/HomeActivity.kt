@@ -18,6 +18,8 @@ import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.databinding.DataBindingUtil
+import com.example.arcanvas.databinding.ActivityImagePickerBinding
 import com.example.arcanvas.utils.Utils
 
 
@@ -30,6 +32,13 @@ class ImagePickActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_image_picker)
 
+<<<<<<< HEAD:app/src/main/java/com/example/arcanvas/ImagePickActivity.kt
+=======
+        //val binding = ActivityImagePickerBinding.inflate(layoutInflater)
+
+        //TODO("Bind layout to activity")
+
+>>>>>>> ad4baba... Restructured folder directory of Kotlin files + refactored image picker ftom activty to fragment. The activty now utilises navhots with the ArtPickerFragment as default:app/src/main/java/com/example/arcanvas/HomeActivity.kt
         //Handle select image
         val pickImage = findViewById<Button>(R.id.btn_select_image)
         pickImage.setOnClickListener{v->
@@ -60,6 +69,11 @@ class ImagePickActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode:Int, resultCode:Int, data:Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
+<<<<<<< HEAD:app/src/main/java/com/example/arcanvas/ImagePickActivity.kt
+=======
+        //TODO("Move data processing and refactor set thumbnail")
+
+>>>>>>> ad4baba... Restructured folder directory of Kotlin files + refactored image picker ftom activty to fragment. The activty now utilises navhots with the ArtPickerFragment as default:app/src/main/java/com/example/arcanvas/HomeActivity.kt
         if (requestCode == SELECT_PHOTO) {
             // Make sure the request was successful
             Log.i("PhotoIntent", "Select Intent successful")

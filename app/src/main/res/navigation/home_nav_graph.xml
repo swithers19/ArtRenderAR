@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/nav_graph.xml"
+    app:startDestination="@id/artPickerFragment">
+
+    <fragment
+        android:id="@+id/artPickerFragment"
+        android:name="com.example.arcanvas.artpicker.ArtPickerFragment"
+        android:label="ArtPickerFragment" />
+</navigation>

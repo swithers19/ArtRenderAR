@@ -1,4 +1,4 @@
-package com.example.arcanvas
+package com.example.arcanvas.ar
 
 
 import android.graphics.Bitmap
@@ -13,12 +13,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.annotation.RequiresApi
+<<<<<<< HEAD:app/src/main/java/com/example/arcanvas/ImageArFragment.kt
 import androidx.core.graphics.get
 import androidx.core.graphics.scale
+=======
+import com.example.arcanvas.R
+>>>>>>> c7385b4... Restructured folder directory of Kotlin files + refactored image picker ftom activty to fragment. The activty now utilises navhots with the ArtPickerFragment as default:app/src/main/java/com/example/arcanvas/ar/ImageArFragment.kt
 import com.google.ar.core.*
 import com.google.ar.sceneform.AnchorNode
 import com.google.ar.sceneform.FrameTime
-import com.google.ar.sceneform.Node
 import com.google.ar.sceneform.math.Quaternion
 import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.rendering.ViewRenderable
@@ -31,6 +34,10 @@ class ImageArFragment:ArFragment() {
     private var artRotation:Float = 0f
     private var imageUri:Uri? = null
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+<<<<<<< HEAD:app/src/main/java/com/example/arcanvas/ImageArFragment.kt
+=======
+        //TODO("Bind AR Fragment to ImageArFragment")
+>>>>>>> ad4baba... Restructured folder directory of Kotlin files + refactored image picker ftom activty to fragment. The activty now utilises navhots with the ArtPickerFragment as default:app/src/main/java/com/example/arcanvas/ar/ImageArFragment.kt
         val view = super.onCreateView(inflater, container, savedInstanceState)
         imageUri = activity!!.intent.extras["ImageUri"] as Uri
         artRotation = activity!!.intent.extras["Rotation"] as Float

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/ar_navigation_graph"
+    app:startDestination="@id/imageArFragment">
+
+    <fragment
+        android:id="@+id/imageArFragment"
+        android:name="com.example.arcanvas.ar.ImageArFragment"
+        android:label="ImageArFragment" />
+</navigation>

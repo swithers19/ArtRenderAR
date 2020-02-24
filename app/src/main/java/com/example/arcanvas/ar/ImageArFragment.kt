@@ -34,10 +34,13 @@ class ImageArFragment:ArFragment() {
     private var artRotation:Float = 0f
     private var imageUri:Uri? = null
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+<<<<<<< HEAD
 <<<<<<< HEAD:app/src/main/java/com/example/arcanvas/ImageArFragment.kt
 =======
         //TODO("Bind AR Fragment to ImageArFragment")
 >>>>>>> ad4baba... Restructured folder directory of Kotlin files + refactored image picker ftom activty to fragment. The activty now utilises navhots with the ArtPickerFragment as default:app/src/main/java/com/example/arcanvas/ar/ImageArFragment.kt
+=======
+>>>>>>> 23c6b62... Refactor the ArExperience activity to handle navhost navigation rather than hardcoding in ARFragment
         val view = super.onCreateView(inflater, container, savedInstanceState)
         imageUri = activity!!.intent.extras["ImageUri"] as Uri
         artRotation = activity!!.intent.extras["Rotation"] as Float

@@ -6,19 +6,14 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.text.Layout
 import android.util.Log
+import android.view.GestureDetector
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.annotation.RequiresApi
-<<<<<<< HEAD:app/src/main/java/com/example/arcanvas/ImageArFragment.kt
-import androidx.core.graphics.get
-import androidx.core.graphics.scale
-=======
 import com.example.arcanvas.R
->>>>>>> c7385b4... Restructured folder directory of Kotlin files + refactored image picker ftom activty to fragment. The activty now utilises navhots with the ArtPickerFragment as default:app/src/main/java/com/example/arcanvas/ar/ImageArFragment.kt
 import com.google.ar.core.*
 import com.google.ar.sceneform.AnchorNode
 import com.google.ar.sceneform.FrameTime
@@ -26,21 +21,21 @@ import com.google.ar.sceneform.math.Quaternion
 import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.rendering.ViewRenderable
 import com.google.ar.sceneform.ux.ArFragment
+import com.google.ar.sceneform.ux.PinchGesture
+import com.google.ar.sceneform.ux.TransformableNode
 import java.io.IOException
 
 class ImageArFragment:ArFragment() {
     // to keep tracking which trackable that we have created AnchorNode with it or not.
     private val trackableMap = mutableMapOf<String, AnchorNode>()
     private var artRotation:Float = 0f
-    private var imageUri:Uri? = null
+    private lateinit var imageUri:Uri
+
+    private lateinit var gestureDetector:GestureDetector
+    private lateinit var pinchGesture: PinchGesture
+
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-<<<<<<< HEAD
-<<<<<<< HEAD:app/src/main/java/com/example/arcanvas/ImageArFragment.kt
-=======
-        //TODO("Bind AR Fragment to ImageArFragment")
->>>>>>> ad4baba... Restructured folder directory of Kotlin files + refactored image picker ftom activty to fragment. The activty now utilises navhots with the ArtPickerFragment as default:app/src/main/java/com/example/arcanvas/ar/ImageArFragment.kt
-=======
->>>>>>> 23c6b62... Refactor the ArExperience activity to handle navhost navigation rather than hardcoding in ARFragment
         val view = super.onCreateView(inflater, container, savedInstanceState)
         imageUri = activity!!.intent.extras["ImageUri"] as Uri
         artRotation = activity!!.intent.extras["Rotation"] as Float
@@ -136,29 +131,28 @@ class ImageArFragment:ArFragment() {
 
         // make anchor in the center of the images
         anchorNode.anchor = image.createAnchor(image.centerPose)
-        anchorNode.localPosition
-
-        Log.d("CreateArt", image.centerPose.toString())
 
         var arWidth = image.extentX // extentX is estimated width
         var arHeight = image.extentZ // extentZ is estimated height
         Log.d("ImageScale", arWidth.toString())
 
-
-
         var scaledWidth = arWidth/1f
-        var scaledHeight = arHeight/0.66f
 
-        // add view
-        val viewA = Node()
+        // add renderable node
+        val viewA = TransformableNode(this.transformationSystem)
+        viewA.scaleController.minScale = scaledWidth
+        viewA.scaleController.maxScale = 15*scaledWidth
+
+        viewA.scaleController.isEnabled = true
+        viewA.rotationController.isEnabled = false
+
         viewA.setParent(anchorNode)
+
         // scale to the right size
         viewA.localRotation = Quaternion(Vector3(1f, 0f, 0f), -90f)
-        viewA.localScale = Vector3(5*scaledWidth, 5*scaledHeight, 5*scaledWidth)
+       // viewA.localScale = Vector3(5*scaledWidth, 5*scaledHeight, 5*scaledWidth)
 
         // load the model
-
-
         ViewRenderable.builder().setView(this.context, setImageView(imageUri))
             .setVerticalAlignment(ViewRenderable.VerticalAlignment.CENTER)
             .setHorizontalAlignment(ViewRenderable.HorizontalAlignment.CENTER)

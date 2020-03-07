@@ -7,12 +7,6 @@
     tools:context=".ArExperienceActivity">
 
     <fragment
-<<<<<<< HEAD
-        android:id="@+id/ar_fragment"
-        android:name="com.example.arcanvas.ImageArFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-=======
         android:id="@+id/ar_nav_host_fragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="0dp"
@@ -24,7 +18,6 @@
 
         app:defaultNavHost="true"
         app:navGraph="@navigation/ar_navigation_graph" />
->>>>>>> a63ed8e... Refactor the ArExperience activity to handle navhost navigation rather than hardcoding in ARFragment
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

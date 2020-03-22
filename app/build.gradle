@@ -58,11 +58,9 @@ dependencies {
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
     implementation "androidx.navigation:navigation-dynamic-features-fragment:$nav_version"
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
 
 }
-
-
-
 
 
 sceneform.asset('sampledata/canvas.obj',

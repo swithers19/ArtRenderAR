@@ -1,5 +1,6 @@
 package com.example.arcanvas.artpicker
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
@@ -17,16 +18,17 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.example.arcanvas.ArExperienceActivity
 import com.example.arcanvas.R
 import com.example.arcanvas.databinding.FragmentArtPickerBinding
 import com.example.arcanvas.utils.Utils
 
 class ArtPickerFragment : Fragment() {
-    private val SELECT_PHOTO = 1
-    private var imageRotation:Float = 0f
-    private var uri: Uri? = null
+    private val SELPHOTO = 1
 
+    private lateinit var viewModel: ArtPickerViewModel
     private lateinit var binding:FragmentArtPickerBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -35,71 +37,45 @@ class ArtPickerFragment : Fragment() {
         binding = DataBindingUtil.inflate(inflater,
             R.layout.fragment_art_picker, container, false)
 
-        binding.btnAr.isEnabled = false
+        // Get the viewmodel and bind to view
+        viewModel = ViewModelProviders.of(this).get(ArtPickerViewModel::class.java)
+        binding.viewmodel = viewModel
+        binding.lifecycleOwner = this
+
         binding.btnSelectImage.setOnClickListener {
             selectImageOnClick()
         }
 
-            binding.btnAr.setOnClickListener {
-                startArExperience()
-                Log.i("btn display art", "clicked")
+        viewModel.startAct.observe(viewLifecycleOwner, Observer { isStarted ->
+            val lnchIntent:Intent
+            view?.let { v ->
+                lnchIntent = viewModel.setArIntent(v)
+                startActivity(lnchIntent)
             }
-
-        Log.i("ArtPickerFragment","Completed binding")
+        })
+        Log.i("ArtPickerFragment","Completed set-up and binding")
         return binding.root
 
     }
 
-    private fun startArExperience(){
-        val arIntent = Intent(activity, ArExperienceActivity::class.java)
-        arIntent.putExtra("ImageUri",uri)
-        arIntent.putExtra("Rotation", imageRotation)
-        startActivity(arIntent)
-    }
 
     private fun selectImageOnClick(){
         val photoPicker = Intent(Intent.ACTION_PICK)
         photoPicker.setType("image/*")
-        startActivityForResult(photoPicker, SELECT_PHOTO)
+        startActivityForResult(photoPicker, SELPHOTO)
     }
 
 
     override fun onActivityResult(requestCode:Int, resultCode:Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        //TODO("Move data processing and refactor set thumbnail")
-
-        if (requestCode == SELECT_PHOTO) {
+        if (requestCode == SELPHOTO) {
             // Make sure the request was successful
-            Log.i("PhotoIntent", "Select Intent successful")
             if (resultCode == AppCompatActivity.RESULT_OK) {
-                Log.i("PhotoIntent", "Got an image")
-                uri = data?.data
-                getOrientation(context, uri)
-                setThumb(uri)
-                binding.btnAr.isEnabled = true
-
+                Log.i("SelectImageOnClick", "Image URI request successful")
+                context?.let { viewModel.getOrientation(it, data?.data) }
             }
         }
     }
-
-    @RequiresApi(Build.VERSION_CODES.N)
-    fun getOrientation(context: Context?, uri: Uri?) {
-        val inputStream = context?.contentResolver?.openInputStream(uri)
-        val exif = ExifInterface(inputStream)
-        val exifInt = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-        imageRotation = Utils.getRotationVector(exifInt)
-    }
-
-
-    fun setThumb(uri: Uri?){
-        val image = binding.imgThumbnail
-        val imageStream = activity?.contentResolver?.openInputStream(uri)
-        val selectedImage = BitmapFactory.decodeStream(imageStream)
-        image.scaleType = ImageView.ScaleType.CENTER_CROP
-        image.rotation = imageRotation
-        image?.setImageBitmap(selectedImage)
-    }
-
 
 }

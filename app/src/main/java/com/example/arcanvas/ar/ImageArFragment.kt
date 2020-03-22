@@ -34,7 +34,6 @@ class ImageArFragment:ArFragment() {
     private lateinit var gestureDetector:GestureDetector
     private lateinit var pinchGesture: PinchGesture
 
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = super.onCreateView(inflater, container, savedInstanceState)
         imageUri = activity!!.intent.extras["ImageUri"] as Uri
@@ -56,7 +55,6 @@ class ImageArFragment:ArFragment() {
         val markerFile = "bernese.jpg"
         val config = super.getSessionConfiguration(session)
         config.focusMode = Config.FocusMode.AUTO // make camera auto focus
-
 
         if (setupAugmentedImagesDb(config, session, markerFile)) {
             Log.d("SetupAugImgDb", "Success")
@@ -150,7 +148,7 @@ class ImageArFragment:ArFragment() {
 
         // scale to the right size
         viewA.localRotation = Quaternion(Vector3(1f, 0f, 0f), -90f)
-       // viewA.localScale = Vector3(5*scaledWidth, 5*scaledHeight, 5*scaledWidth)
+        // viewA.localScale = Vector3(5*scaledWidth, 5*scaledHeight, 5*scaledWidth)
 
         // load the model
         ViewRenderable.builder().setView(this.context, setImageView(imageUri))
@@ -159,7 +157,7 @@ class ImageArFragment:ArFragment() {
             .build()
             .thenAccept { renderable ->
                 viewA.renderable = renderable
-        }
+            }
         return anchorNode
     }
 

@@ -3,6 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+        <variable
+            name="viewmodel"
+            type="com.example.arcanvas.artpicker.ArtPickerViewModel" />
+    </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -24,13 +29,20 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="36dp"
             android:text="Display Art"
+            android:enabled="@{viewmodel.imageSet}"
+            android:onClick="@{() -> viewmodel.startNewActivity()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.498"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+
+            />
 
         <ImageView
             android:id="@+id/img_thumbnail"
+            android:scaleType="centerCrop"
+            android:rotation="@{viewmodel.imageRotation}"
+            android:src="@{viewmodel.imageThumbnail}"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:maxHeight="400dp"

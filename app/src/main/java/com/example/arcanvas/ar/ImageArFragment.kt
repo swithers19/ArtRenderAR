@@ -13,7 +13,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.ViewModelProviders
 import com.example.arcanvas.R
 import com.google.ar.core.*
 import com.google.ar.sceneform.AnchorNode
@@ -32,21 +31,20 @@ class ImageArFragment:ArFragment() {
     private var artRotation:Float = 0f
     private lateinit var imageUri:Uri
 
-    private lateinit var viewModel:ImageArViewModel
+    private lateinit var gestureDetector:GestureDetector
+    private lateinit var pinchGesture: PinchGesture
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = super.onCreateView(inflater, container, savedInstanceState)
         imageUri = activity!!.intent.extras["ImageUri"] as Uri
         artRotation = activity!!.intent.extras["Rotation"] as Float
+        Log.d("onCreateArFragment", imageUri.toString())
 
-        //Initialisation of viewmodel
-        val viewModelFactory = ImageArViewModelFactory(context!!, imageUri, artRotation, this.transformationSystem)
-        viewModel = ViewModelProviders.of(this, viewModelFactory)
-            .get(ImageArViewModel::class.java)
-
+        // Turn off the plane discovery since we're only looking for ArImages
         planeDiscoveryController.hide()
         planeDiscoveryController.setInstructionView(null)
         arSceneView.planeRenderer.isEnabled = false
+
         // add frame update listener
         arSceneView.scene.addOnUpdateListener(::onUpdateFrame)
 
@@ -54,34 +52,124 @@ class ImageArFragment:ArFragment() {
     }
 
     override fun getSessionConfiguration(session: Session): Config {
+        val markerFile = "bernese.jpg"
         val config = super.getSessionConfiguration(session)
         config.focusMode = Config.FocusMode.AUTO // make camera auto focus
-        Log.i("getSessionConfig", "Session Called")
 
-        if (viewModel.setupAugmentedImagesDb(config, session)) {
+        if (setupAugmentedImagesDb(config, session, markerFile)) {
             Log.d("SetupAugImgDb", "Success")
         } else {
             Log.e("SetupAugImgDb", "Faliure setting up db")
         }
+
         return config
+    }
+
+    fun setupAugmentedImagesDb(config: Config, session: Session, markerFile:String): Boolean {
+        val augmentedImageDatabase: AugmentedImageDatabase
+        val bitmap: Bitmap = loadAugmentedImage(markerFile) ?: return false
+
+        augmentedImageDatabase = AugmentedImageDatabase(session)
+        augmentedImageDatabase.addImage("bernese", bitmap!!)
+        config.augmentedImageDatabase = augmentedImageDatabase
+        return true
+    }
+
+
+    private fun loadAugmentedImage(markerFile:String): Bitmap? {
+        try {
+            val inputStream = activity?.assets?.open(markerFile)
+            return  BitmapFactory.decodeStream(inputStream)
+        } catch(e: IOException) {
+            Log.d("imageLoad", "io exception while loading", e)
+        }
+        return null
     }
 
     private fun onUpdateFrame(frameTime: FrameTime?){
         // we will add anchor here later
         val frame = arSceneView.arFrame
-        Log.i("OnUpdateFrame", "Another Frame")
 
         // If there is no frame or ARCore is not tracking yet, just return.
         if (frame == null || frame.camera.trackingState != TrackingState.TRACKING) {
             return
         }
 
-        val anchor  = viewModel.getDetectedImages(frame)
-        anchor?.let { arSceneView.scene.addChild(anchor) }
         // get detected AugmentedImages
+        // there are three types of trackables, they are AugmentedImage, Plane and Point.
+        frame.getUpdatedTrackables(AugmentedImage::class.java).forEach { image ->
+            when (image.trackingState) {
+                // if it is in tracking state and we didn't add AnchorNode, then add one
+                TrackingState.TRACKING -> if (!trackableMap.contains(image.name)) {
+                    createAnchorNode(image)
+                }
+                TrackingState.STOPPED -> {
+                    // remove it
+                    trackableMap.remove(image.name)
+                }
+                else -> {
+                }
+            }
+        }
 
     }
+    private fun createAnchorNode(image: AugmentedImage) {
+        val an = createArt(image)
+        if (an != null){
+            // add the AnchorNode to the scene
+            arSceneView.scene.addChild(an)
+            // keep the node
+            trackableMap[image.name] = an
+        }
+    }
 
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun createArt(image: AugmentedImage): AnchorNode {
+        val anchorNode = AnchorNode()
 
+        // make anchor in the center of the images
+        anchorNode.anchor = image.createAnchor(image.centerPose)
 
+        var arWidth = image.extentX // extentX is estimated width
+        var arHeight = image.extentZ // extentZ is estimated height
+        Log.d("ImageScale", arWidth.toString())
+
+        var scaledWidth = arWidth/1f
+
+        // add renderable node
+        val viewA = TransformableNode(this.transformationSystem)
+        viewA.scaleController.minScale = scaledWidth
+        viewA.scaleController.maxScale = 15*scaledWidth
+
+        viewA.scaleController.isEnabled = true
+        viewA.rotationController.isEnabled = false
+
+        viewA.setParent(anchorNode)
+
+        // scale to the right size
+        viewA.localRotation = Quaternion(Vector3(1f, 0f, 0f), -90f)
+        // viewA.localScale = Vector3(5*scaledWidth, 5*scaledHeight, 5*scaledWidth)
+
+        // load the model
+        ViewRenderable.builder().setView(this.context, setImageView(imageUri))
+            .setVerticalAlignment(ViewRenderable.VerticalAlignment.CENTER)
+            .setHorizontalAlignment(ViewRenderable.HorizontalAlignment.CENTER)
+            .build()
+            .thenAccept { renderable ->
+                viewA.renderable = renderable
+            }
+        return anchorNode
+    }
+
+    private fun setImageView(artImage: Uri?):View{
+        val layout = layoutInflater.inflate(R.layout.image, null)
+        layout.width
+        val image = layout.findViewById<ImageView>(R.id.image_card)
+        val imageStream = activity?.contentResolver?.openInputStream(artImage)
+        val selectedImage = BitmapFactory.decodeStream(imageStream)
+        image?.rotation = artRotation
+        image?.scaleType = ImageView.ScaleType.CENTER_CROP
+        image?.setImageBitmap(selectedImage)
+        return layout
+    }
 }
